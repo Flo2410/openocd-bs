@@ -58,9 +58,9 @@ proc get_bit_bsr {bit {register 0}} {
     if {$register == 0} {
 	set register $bsrstate
     }
-    set idx [expr $bit / 32]
-    set bit [expr $bit % 32]
-    expr ([lindex $register [expr $idx*2 + 1]] & [expr 2**$bit]) != 0
+    set idx [expr {$bit / 32}]
+    set bit [expr {$bit % 32}]
+    expr {([lindex $register [expr {$idx*2 + 1}]] & [expr {2**$bit}]) != 0}
 }
 
 # Resample and get bit
@@ -72,14 +72,14 @@ proc sample_get_bit_bsr {bit} {
 # Set particular bit to "value" in bsrstateout
 proc set_bit_bsr {bit value} {
     global bsrstateout
-    set idx [expr ($bit / 32) * 2 + 1]
-    set bit [expr $bit % 32]
-    set bitval [expr 2**$bit]
+    set idx [expr {($bit / 32) * 2 + 1}]
+    set bit [expr {$bit % 32}]
+    set bitval [expr {2**$bit}]
     set word [lindex $bsrstateout $idx]
     if {$value == 0} {
-	set word [format %X [expr $word & ~$bitval]]
+	set word [format %X [expr {$word & ~$bitval}]]
     } else {
-	set word [format %X [expr $word | $bitval]]
+	set word [format %X [expr {$word | $bitval}]]
     }
     set bsrstateout [lreplace $bsrstateout $idx $idx 0x$word]
     return
@@ -123,8 +123,8 @@ proc show_bsrchange {} {
 # (use curpull 1) or pulldown (use curpull 0) connected while
 # running this
 proc find_pin_ctrl {pin curpull} {
-    detect_pin_change $pin [expr $pin + 1] $curpull
-    detect_pin_change $pin [expr $pin - 2] $curpull
+    detect_pin_change $pin [expr {$pin + 1}] $curpull
+    detect_pin_change $pin [expr {$pin - 2}] $curpull
 }
 
 proc init_bsrstate {} {
@@ -170,12 +170,12 @@ proc detect_drlen {{postlen 0}} {
     set bsrstate $bsrstateout
     # stop in drpause
     exchange_bsr 1
-    for {set i [expr $maxlen * 2 - 1]} {$i >= 0} {incr i -1} {
+    for {set i [expr {$maxlen * 2 - 1}]} {$i >= 0} {incr i -1} {
 	if {[get_bit_bsr $i] == 0} {
 	    break
 	}
     }
-    set bsrlen [expr $i - $maxlen + 1 - $postlen]
+    set bsrlen [expr {$i - $maxlen + 1 - $postlen}]
     echo "Auto-detected BSR length: "$bsrlen
     return $bsrlen
 }
@@ -203,12 +203,12 @@ proc detect_pin_change {pin ctrl curpull} {
     exchange_bsr
     set bsrstateout_saved $bsrstateout
     for {set i 0} {$i < 4} {incr i} {
-	set_bit_bsr $ctrl [expr $i / 2]
-	set_bit_bsr_do [expr $ctrl + 1] [expr $i % 2]
+	set_bit_bsr $ctrl [expr {$i / 2}]
+	set_bit_bsr_do [expr {$ctrl + 1}] [expr {$i % 2}]
 	if {[sample_get_bit_bsr $pin] != $curpull} {
-	    echo [concat "Pin " $pin " pulled to " [expr !$curpull] " by " \
-		      $ctrl " = " [expr $i / 2] ", " \
-		      [expr $ctrl + 1] " = " [expr $i % 2]]
+	    echo [concat "Pin " $pin " pulled to " [expr {!$curpull}] " by " \
+		      $ctrl " = " [expr {$i / 2}] ", " \
+		      [expr {$ctrl + 1}] " = " [expr {$i % 2}]]
 	}
     }
     set bsrstateout $bsrstateout_saved
